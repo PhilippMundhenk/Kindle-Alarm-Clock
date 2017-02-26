@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=600px, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="HandheldFriendly" content="true" />
+<script>
+var cnt=0;
+function startTime() {
+	var weekday = new Array(7);
+	weekday[0] = "Sunday";
+	weekday[1] = "Monday";
+	weekday[2] = "Tuesday";
+	weekday[3] = "Wednesday";
+	weekday[4] = "Thursday";
+	weekday[5] = "Friday";
+	weekday[6] = "Saturday";
+
+    var today = new Date();
+    var h = today.getHours();
+    var m = today.getMinutes();
+    var s = today.getSeconds();
+	var d = today.getDay();
+	var mo = today.getMonth();
+	mo=mo+1;
+	var y = today.getFullYear();
+	var da = today.getDate()
+	
+	h = checkTime(h);
+    m = checkTime(m);
+    s = checkTime(s);
+    document.getElementById('clock').innerHTML = h + ":" + m;
+	document.getElementById('day').innerHTML = weekday[d] + ", " + da + "." + mo + "." + y;
+	cnt++;
+	if(cnt==600)
+	{
+		cnt = 0;
+		window.location="http://localhost:8000/clock";
+	}
+	else
+	{
+		setTimeout(startTime, 1000);
+	}
+}
+function checkTime(i) {
+    if (i < 10) {i = "0" + i};  // add zero in front of numbers < 10
+    return i;
+}
+function startup() {
+	startTime();
+}
+function stopAlarm(){
+	var req = new XMLHttpRequest();
+	var url = "http://localhost:8000/stop"
+	req.open("GET", url, true);
+	req.onreadystatechange = function () {
+	}
+	req.send(null);
+	window.location="http://localhost:8000/clock";
+}
+</script>
+<style>
+#page {
+	-webkit-transform: rotate(90deg) translate(100px, 100px);
+	height: 600px;
+	width: 800px;
+}
+#day {
+	padding:0;
+	margin:0;
+}
+#clock {
+	padding:-100px -100px;
+	margin-top: -40px;
+	margin-bottom: -40px;
+}
+#alarm {
+	padding:0;
+	margin:0;
+}
+#next {
+	font-size: 80px;
+	padding:-100px -100px;
+	margin-top: -40px;
+	margin-bottom: -40px;
+	margin-left: 15px;
+}
+a {
+	padding:0;
+	margin:0;
+	text-decoration:none;
+	color:black;
+}
+.tg  {
+	margin-left: 20px;
+	border-collapse:collapse;
+	border-spacing:0;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	margin-top: 25px;
+}
+.tg td{
+	font-family:Arial, sans-serif;
+	font-size:14px;
+	padding:0px 0px;
+	overflow:hidden;
+	word-break:normal;
+}
+.tg th{
+	font-family:Arial, sans-serif;
+	font-size:14px;
+	font-weight:normal;
+	padding:0px 0px;
+	overflow:hidden;
+	word-break:normal;
+}
+.tg .tg-s6z2{
+	padding:0;
+	margin:0;
+	font-size:80px;
+	text-align:center
+}
+.tg .tg-baqh{
+	font-size:300px;
+	padding:0;
+	margin:0;
+	text-align:center;
+	vertical-align:center
+}
+.tg .tg-yw4l{
+	padding:0;
+	margin:0;
+	vertical-align:center
+}
+.tg .tg-yw42{
+	padding:0;
+	margin:0;
+	width: 150px;
+	vertical-align:center
+}
+.tg .tg-yw43{
+	padding:0;
+	margin:0;
+	width: 1px;
+    white-space: nowrap;
+	vertical-align:center
+}
+</style>
+</head>
+
+<body onload="startup()">
+<div id="page" onclick="stopAlarm()">
+	<table class="tg">
+	  <tr>
+		<th class="tg-s6z2" colspan="3">
+			<p id="day"></p>
+		</th>
+	  </tr>
+	  <tr>
+		<td class="tg-baqh" colspan="3">
+			<p id="clock"></p>
+		</td>
+	  </tr>
+	  <tr>
+		<td class="tg-yw42">
+			<a href="http://localhost:8000/alarm">
+					<img id="alarm" src="http://localhost:8080/iconAlarm.png" width=150px/>
+			</a>
+		</td>
+		<td class="tg-yw4l">
+			<p id="next">
+				<a href="http://localhost:8000/alarm">
+					$NEXT_ALARM$
+				</a>
+			</p>
+		</td>
+		<td class="tg-yw43"></td>
+	  </tr>
+	</table>
+</div>
+
+</body>
+</html>

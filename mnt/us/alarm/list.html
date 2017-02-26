@@ -1,0 +1,64 @@
+<html>
+<head>
+<script>
+</script>
+<style type="text/css">
+#page {
+	-webkit-transform: rotate(90deg) translate(100px, 100px);
+	height: 600px;
+	width: 800px;
+}
+.tg  {
+	border-collapse:collapse;
+	border-spacing:0;
+	width:99%;
+}
+.tg td{
+	font-family:Arial, sans-serif;
+	font-size:14px;
+	padding:10px 5px;
+	overflow:hidden;
+	word-break:normal;
+}
+.tg th{
+	font-family:Arial, sans-serif;
+	font-size:14px;
+	font-weight:normal;
+	padding:10px 5px;
+	overflow:hidden;
+	word-break:normal;
+}
+.tg .tg-alarm{
+	width:15%;
+	text-align:left;
+}
+.tg .tg-del{
+	width:70%;
+	text-align:right;
+}
+.text {
+	font-size:50px;
+	font-weight:bold;
+}
+a {
+	padding:0;
+	margin:0;
+	text-decoration:none;
+	color:black;
+}
+#back {
+	font-size:50px;
+	font-weight:bold;
+	text-align:center;
+}
+</style>
+</head>
+<body>
+<div id="page">
+	<table class="tg">
+	  $ALARMS$
+	</table>
+	<a id="back" href="http://localhost:8000/alarm">back</a>
+</div>
+</body>
+</html>

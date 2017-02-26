@@ -1,0 +1,306 @@
+<html>
+<head>
+<script>
+function startup() {
+	var today = new Date();
+	var hours = today.getHours();
+	var minutes = today.getMinutes();
+	if(hours<10)
+	{
+		document.getElementById('hourText').innerHTML = "0"+hours;
+	}
+	else
+	{
+		document.getElementById('hourText').innerHTML = hours;
+	}
+	if(minutes<10)
+	{
+		document.getElementById('minuteText').innerHTML = "0"+minutes;
+	}
+	else
+	{
+		document.getElementById('minuteText').innerHTML = minutes;
+	}
+}
+function adjustHour(i) {
+	var current = parseInt(document.getElementById('hourText').innerHTML, 10);
+	var next = current+i;
+	if(next>23)
+	{
+		next=0;
+	}
+	if(next<0)
+	{
+		next=23;
+	}
+	if(next<10)
+	{
+		document.getElementById('hourText').innerHTML = "0"+next;
+	}
+	else
+	{
+		document.getElementById('hourText').innerHTML = next;
+	}
+}
+function adjustMinute(i) {
+	var current = parseInt(document.getElementById('minuteText').innerHTML, 10);
+	var next = current+i;
+	if(next>59)
+	{
+		next=0;
+	}
+	if(next<0)
+	{
+		next=59;
+	}
+	if(next<10)
+	{
+		document.getElementById('minuteText').innerHTML = "0"+next;
+	}
+	else
+	{
+		document.getElementById('minuteText').innerHTML = next;
+	}
+}
+function set(){
+	var minute = "&minute="+parseInt(document.getElementById('minuteText').innerHTML);
+	var hour = "?hour="+parseInt(document.getElementById('hourText').innerHTML);
+	var url = "http://localhost:8000/set"+hour+minute;
+	for(i = 0; i < 7; i++)
+	{
+		if(document.getElementById("day"+i).className=="dayPickerEntry selected")
+		{
+			url = url+"&day="+i;
+		}
+	}
+	window.location = url;
+}
+function selectDay(i){
+	if(document.getElementById("day"+i).className=="dayPickerEntry unselected")
+	{
+		document.getElementById("day"+i).className="dayPickerEntry selected";
+	}
+	else if(document.getElementById("day"+i).className=="dayPickerEntry selected")
+	{
+		document.getElementById("day"+i).className="dayPickerEntry unselected";
+	}
+}
+function cancel(){
+	window.location = "http://localhost:8000/clock";
+}
+</script>
+<style>
+#page {
+	-webkit-transform: rotate(90deg) translate(100px, 100px);
+	height: 600px;
+	width: 800px;
+	text-align: center;
+}
+#hourText {
+	font-size: 100px;
+}
+#colon {
+	font-size: 100px;
+}
+#minuteText {
+	font-size: 100px;
+}
+#buttonSet {
+	font-size: 100px;
+	padding-left: 10px;
+	padding-right: 15px;
+}
+#buttonCancel {
+	font-size: 100px;
+	padding-left: 10px;
+	padding-right: 15px;
+}
+#buttonList {
+	font-size: 100px;
+	padding-left: 10px;
+	padding-right: 15px;
+}
+.bottom {
+	-webkit-transform: rotate(180deg);
+}
+.arrow {
+	width: 50%;
+	margin: 0 auto;
+}
+.dayPickerTg{
+	border-collapse:collapse;
+	border-spacing:0;
+	position: absolute;
+	top: 400px;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	padding-top: 0px;
+	margin-top: 0px;
+	font-size:58px;
+}
+.dayPickerEntry {
+	margin-left: 2px;
+	padding-left:2px;
+	margin-right: 2px;
+	padding-right:2px;
+	width:150px;
+	text-align:center;
+}
+.dayPickerHeadline {
+	margin-left: 2px;
+	padding-left:2px;
+	margin-right: 2px;
+	padding-right:2px;
+	width:150px;
+	text-align:left;
+}
+.unselected {
+}
+.selected {
+	background-color: black;
+	color: white;
+}
+a {
+	padding:0;
+	margin:0;
+	text-decoration:none;
+	color:black;
+}
+.tg  {
+	border-collapse:collapse;
+	border-spacing:0;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	padding-top: 0px;
+	margin-top: 0px;
+}
+.tg td{
+	font-family:Arial, sans-serif;
+	font-size:14px;
+	padding:0px 0px;
+	overflow:hidden;
+	word-break:normal;
+}
+.tg th{
+	font-family:Arial, sans-serif;
+	font-size:14px;
+	font-weight:normal;
+	padding:0px 0px;
+	overflow:hidden;
+	word-break:normal;
+}
+.tg .tg-s6z2{
+	text-align:center
+}
+.tg-button{
+	text-align:right;
+}
+.tg .tg-repeat{
+	padding:10px 5px;
+	text-align:center;
+}
+</style>
+</head>
+<body onload="startup()">
+<div id="page">
+	<table class="tg">
+		<colgroup>
+			<col>
+			<col>
+			<col>
+			<col>
+			<col>
+			<col>
+			<col>
+			<col>
+		</colgroup>
+	  <tr>
+		<th class="tg-s6z2">
+			<img src="http://localhost:8080/triangle.png" width=100px class="top arrow" onclick="adjustHour(1)"/>
+		</th>
+		<th class="tg-s6z2"></th>
+		<th class="tg-s6z2"></th>
+		<th class="tg-s6z2"></th>
+		<th class="tg-s6z2">
+			<img src="http://localhost:8080/triangle.png" width=100px class="top arrow" onclick="adjustMinute(1)"/>
+		</th>
+		<th class="tg-s6z2"></th>
+		<th class="tg-s6z2"></th>
+		<th class="tg-button">
+			<p id="buttonCancel" onclick="cancel()">cancel</p>
+		</th>
+	  </tr>
+	  <tr>
+		<td class="tg-s6z2" colspan="2">
+			<p id="hourText" class="text"></p>
+		</td>
+		<td class="tg-s6z2" colspan="2">
+			<p id="colon">:</p>
+		</td>
+		<td class="tg-s6z2" colspan="2">
+			<p id="minuteText" class="text"></p>
+		</td>
+		<td class="tg-s6z2"></td>
+		<td class="tg-button">
+			<p id="buttonSet" onclick="set()">set</p>
+		</td>
+	  </tr>
+	  <tr>
+		<td class="tg-s6z2">
+			<img src="http://localhost:8080/triangle.png" width=100px class="bottom arrow" onclick="adjustHour(-1)"/>
+		</td>
+		<td class="tg-s6z2"></td>
+		<td class="tg-s6z2"></td>
+		<td class="tg-s6z2"></td>
+		<td class="tg-s6z2">
+			<img src="http://localhost:8080/triangle.png" width=100px class="bottom arrow" onclick="adjustMinute(-1)"/>
+		</td>
+		<td class="tg-s6z2"></td>
+		<td class="tg-s6z2"></td>
+		<td class="tg-button">
+			<a href="http://localhost:8000/list"><p id="buttonList">list all</p></a>
+		</td>
+	  </tr>
+	  <tr>
+		<td class="tg-s6z2"></td>
+		<td class="tg-s6z2"></td>
+		<td class="tg-s6z2"></td>
+		<td class="tg-s6z2"></td>
+		<td class="tg-s6z2"></td>
+		<td class="tg-s6z2"></td>
+		<td class="tg-s6z2"></td>
+		<td class="tg-s6z2"></td>
+	  </tr>
+	</table>
+	
+	<table class="dayPickerTg">
+		<colgroup>
+			<col>
+			<col>
+			<col>
+			<col>
+			<col>
+			<col>
+			<col>
+		</colgroup>		
+	  <tr>
+		<td class="dayPickerHeadline unselected" colspan="7">repeat:</td>
+	  </tr>
+	  <tr>
+		<td id="day0" onclick="selectDay(0)" class="dayPickerEntry unselected">M</td>
+		<td id="day1" onclick="selectDay(1)" class="dayPickerEntry unselected">T</td>
+		<td id="day2" onclick="selectDay(2)" class="dayPickerEntry unselected">W</td>
+		<td id="day3" onclick="selectDay(3)" class="dayPickerEntry unselected">T</td>
+		<td id="day4" onclick="selectDay(4)" class="dayPickerEntry unselected">F</td>
+		<td id="day5" onclick="selectDay(5)" class="dayPickerEntry unselected">S</td>
+		<td id="day6" onclick="selectDay(6)" class="dayPickerEntry unselected">S</td>
+	  </tr>
+	</table>
+</div>
+
+</body>
+</html>
