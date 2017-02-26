@@ -27,7 +27,7 @@ Note: I threw this together in the course of a Saturday, so please forgive me, i
 - Kindle Unified Applications Launcher (KUAL), see [here](https://www.mobileread.com/forums/showthread.php?t=203326)
 - WebLaunch, see [here](https://github.com/PaulFreund/WebLaunch)
 - MPlayer, see [here](https://www.mobileread.com/forums/showthread.php?t=119851)
-- Python, se [here](https://www.mobileread.com/forums/showthread.php?t=225030)
+- Python, see [here](https://www.mobileread.com/forums/showthread.php?t=225030)
 - Any WiFi around that you can connect to (no need for internet, unless you want to play internet radio)
 
 ## Installation
