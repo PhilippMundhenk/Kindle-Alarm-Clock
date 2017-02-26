@@ -15,7 +15,7 @@ Note: I threw this together in the course of a Saturday, so please forgive me, i
 - WiFi auto-off: WiFi is turned off automatically, after usage, reducing electromagnetic pollution (your alarm clock really does not need WiFi).
 - auto-refresh of e-ink display to avoid ghosting effects, every 10min.
 
-## Fotos
+## Photos
 ![Clock/Home Screen](https://raw.githubusercontent.com/PhilippMundhenk/Kindle-Alarm-Clock/master/photos/clockScreen.jpg "Clock/Home Screen")
 ![Alarm Settings](https://raw.githubusercontent.com/PhilippMundhenk/Kindle-Alarm-Clock/master/photos/alarmSettings.jpg "Alarm Settings")
 ![List of Alarms](https://raw.githubusercontent.com/PhilippMundhenk/Kindle-Alarm-Clock/master/photos/ListOfAlarms.jpg "List of Alarms")
