@@ -27,9 +27,9 @@ Note: I threw this together in the course of a Saturday, so please forgive me, i
 ## Installation
 - Follow the instructions on https://wiki.mobileread.com/wiki/Kindle_Touch_Hacking to jailbreak your Kindle, install USB Networking, KUAL, WebLaunch, MPlayer and Python, if you haven't already.
 - Copy the files from this repository to the root of your Kindle:
--- The actual app components are located in /mnt/us/alarm.
--- A startup script is located in /etc/upstart. This way, the alarm clock will automatically start whenever your Kindle starts. There is a bit of delay
--- The settings.js file for WebLaunch is located in /mnt/us/extensions/WebLaunch. This will overwrite your current settings.js, if you use WebLaunch.
+   - The actual app components are located in /mnt/us/alarm.
+   - A startup script is located in /etc/upstart. This way, the alarm clock will automatically start whenever your Kindle starts. There is a bit of delay
+   - The settings.js file for WebLaunch is located in /mnt/us/extensions/WebLaunch. This will overwrite your current settings.js, if you use WebLaunch.
 - Start WebLaunch manually via KUAL once, so that the settings.js is read.
 - Connect your Kindle to any WiFi network. Unfortunately, the Kindle browser (which is used by WebLaunch) only connects to websites, when it is connected to a WiFi, even if the address it connects to is on localhost. Thus, a connectable WiFi needs to be around. The alarm clock will make sure to turn off WiFi whenever it is not needed.
 - Place your MP3s (or AAC, FLAC, OGG, ...) to be played at alarm time on the /mnt/us/music folder. If you want to use a web address, place it in /mnt/us/mplayer/playlist and in testServer.py set mplayerMode="playlist".
@@ -44,6 +44,6 @@ This project is far from complete, there are a whole lot of things to be done, e
 ## Ressources
 - excellent summary of the Kindle Touch for DIY people: https://wiki.mobileread.com/wiki/Kindle_Touch_Hacking
 - inspiration: 
--- http://blog.yolo.pro/repurposing-an-old-kindle-touch-as-a-weather-display/
--- https://mpetroff.net/2012/09/kindle-weather-display/
+   - http://blog.yolo.pro/repurposing-an-old-kindle-touch-as-a-weather-display/
+   - https://mpetroff.net/2012/09/kindle-weather-display/
 
