@@ -18,7 +18,7 @@ Note: I threw this together in the course of a Saturday, so please forgive me, i
 ## Fotos
 ![Clock/Home Screen](https://raw.githubusercontent.com/PhilippMundhenk/Kindle-Alarm-Clock/master/photos/clockScreen.jpg "Clock/Home Screen")
 ![Alarm Settings](https://raw.githubusercontent.com/PhilippMundhenk/Kindle-Alarm-Clock/master/photos/alarmSettings.jpg "Alarm Settings")
-![List of Alarms](https://raw.githubusercontent.com/PhilippMundhenk/Kindle-Alarm-Clock/master/photos/listOfAlarms.jpg "List of Alarms")
+![List of Alarms](https://raw.githubusercontent.com/PhilippMundhenk/Kindle-Alarm-Clock/master/photos/ListOfAlarms.jpg "List of Alarms")
 
 ## Requirements
 - Kindle Touch: Likely also running on other Kindles, but not tested.
