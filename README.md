@@ -16,9 +16,9 @@ Note: I threw this together in the course of a Saturday, so please forgive me, i
 - auto-refresh of e-ink display to avoid ghosting effects, every 10min.
 
 ## Fotos
-![Clock/Home Screen](ClockScreen.jpg "Clock/Home Screen")
-![Alarm Settings](AlarmSettings.jpg "Alarm Settings")
-![List of Alarms](ListOfAlarms.jpg "List of Alarms")
+![Clock/Home Screen](https://raw.githubusercontent.com/PhilippMundhenk/Kindle-Alarm-Clock/master/fotos/ClockScreen.jpg "Clock/Home Screen")
+![Alarm Settings](https://raw.githubusercontent.com/PhilippMundhenk/Kindle-Alarm-Clock/master/fotos/AlarmSettings.jpg "Alarm Settings")
+![List of Alarms](https://raw.githubusercontent.com/PhilippMundhenk/Kindle-Alarm-Clock/master/fotos/ListOfAlarms.jpg "List of Alarms")
 
 ## Requirements
 - Kindle Touch: Likely also running on other Kindles, but not tested.
