@@ -2,7 +2,7 @@
 An alarm clock running on the Kindle Touch.
 
 ## Description
-I wanted an alarm clock with a certain set of features in a nice design at a reasonable price point. Unfortunately, I couldn't find any such thing. I thus decided to build my own. I got a used Kindle Touch, which is, other than the lack of screen lighting, ideal for this purpose: It has a large display, consumes relatively little energy, due to the e-paper display, runs a Linux-based OS and is easy to hack.
+I wanted an alarm clock with a certain set of features in a nice design at a reasonable price point. Unfortunately, I couldn't find any such thing. I thus decided to build my own. I got a used Kindle Touch, which is, other than the lack of screen lighting, ideal for this purpose: It has a large display, consumes relatively little energy, due to the e-ink display, runs a Linux-based OS and is easy to hack.
 
 Note: I threw this together in the course of a Saturday, so please forgive me, if not everything is absolutely beautiful. Feel free to report errors or contribute!
 
@@ -13,6 +13,12 @@ Note: I threw this together in the course of a Saturday, so please forgive me, i
 - auto-start: starts together with Kindle
 - custom sounds: Uses mplayer to play MP3, Internet Radio, ...
 - WiFi auto-off: WiFi is turned off automatically, after usage, reducing electromagnetic pollution (your alarm clock really does not need WiFi).
+- auto-refresh of e-ink display to avoid ghosting effects, every 10min.
+
+## Fotos
+![Clock/Home Screen](ClockScreen.jpg "Clock/Home Screen")
+![Alarm Settings](AlarmSettings.jpg "Alarm Settings")
+![List of Alarms](ListOfAlarms.jpg "List of Alarms")
 
 ## Requirements
 - Kindle Touch: Likely also running on other Kindles, but not tested.
@@ -33,6 +39,12 @@ Note: I threw this together in the course of a Saturday, so please forgive me, i
 - Start WebLaunch manually via KUAL once, so that the settings.js is read.
 - Connect your Kindle to any WiFi network. Unfortunately, the Kindle browser (which is used by WebLaunch) only connects to websites, when it is connected to a WiFi, even if the address it connects to is on localhost. Thus, a connectable WiFi needs to be around. The alarm clock will make sure to turn off WiFi whenever it is not needed.
 - Place your MP3s (or AAC, FLAC, OGG, ...) to be played at alarm time on the /mnt/us/music folder. If you want to use a web address, place it in /mnt/us/mplayer/playlist and in testServer.py set mplayerMode="playlist".
+
+## Usage
+- Press beel icon to get to settings screen
+- Set your alarm time and repetitions, press set
+- Kindle will play your sound file at alarm time
+- Press screen to turn off
 
 ## ToDo
 This project is far from complete, there are a whole lot of things to be done, e.g.
