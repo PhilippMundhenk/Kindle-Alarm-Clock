@@ -175,22 +175,6 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 		Thread(target=self.WifiOff, args=[]).start()
 		return
      
-        def do_POST(self):
-            	new_id = max(filter(lambda x: x['id'], TODOS))['id'] + 1
-            	form = cgi.FieldStorage(fp=self.rfile,
-                               	headers=self.headers, environ={
-                                    	'REQUEST_METHOD':'POST', 
-                                   	'CONTENT_TYPE':self.headers['Content-Type']
-                               	})
-            	new_title = form['title'].value
-            	new_todo = {'id': new_id, 'title': new_title}
-            	TODOS.append(new_todo)
-     
-            	self.send_response(201)
-            	self.end_headers()
-            	self.wfile.write(json.dumps(new_todo))
-            	return
-     
 httpd = HTTPServer(('127.0.0.1', 8000), RestHTTPRequestHandler)
 while True:
 	httpd.handle_request()
