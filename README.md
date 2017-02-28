@@ -21,7 +21,7 @@ Note: I threw this together in the course of a Saturday, so please forgive me, i
 ![List of Alarms](https://raw.githubusercontent.com/PhilippMundhenk/Kindle-Alarm-Clock/master/photos/ListOfAlarms.jpg "List of Alarms")
 
 ## Requirements
-- Kindle Touch: Likely also running on other Kindles, but not tested.
+- Kindle Touch: Likely also running on other Kindles with speakers, but not tested.
 - Jailbreak for Kindle Touch, see [here](https://www.mobileread.com/forums/showthread.php?t=275877)
 - USB Networking, see [here](https://www.mobileread.com/forums/showthread.php?t=186645)
 - Kindle Unified Applications Launcher (KUAL), see [here](https://www.mobileread.com/forums/showthread.php?t=203326)
@@ -41,7 +41,7 @@ Note: I threw this together in the course of a Saturday, so please forgive me, i
 - Place your MP3s (or AAC, FLAC, OGG, ...) to be played at alarm time on the /mnt/us/music folder. If you want to use a web address, place it in /mnt/us/mplayer/playlist and in testServer.py set mplayerMode="playlist".
 
 ## Usage
-- Press beel icon to get to settings screen
+- Press bell icon to get to settings screen
 - Set your alarm time and repetitions, press set
 - Kindle will play your sound file at alarm time
 - Press screen to turn off
