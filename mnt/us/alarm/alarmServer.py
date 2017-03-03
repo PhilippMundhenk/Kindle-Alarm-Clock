@@ -38,7 +38,7 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 	def getClock(self):
 		global alarms
 		global weekdayNames
-		with open('test.html', 'r') as testFile:
+		with open('clock.html', 'r') as file:
 			if(len(alarms) > 0):
 				numberAdditionalAlarms=len(alarms)-1
 				text=""
@@ -47,9 +47,9 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 				text=text+str(alarms[0].hour).zfill(2) +":"+str(alarms[0].minute).zfill(2)
 				if(numberAdditionalAlarms>0):
 					text=text+" +"+str(numberAdditionalAlarms)
-				return testFile.read().replace("$NEXT_ALARM$",text)
+				return file.read().replace("$NEXT_ALARM$",text)
 			else:
-				return testFile.read().replace("$NEXT_ALARM$","")
+				return file.read().replace("$NEXT_ALARM$","")
 	def flushScreen(x):
 		call(["/mnt/us/alarm/flushScreen.sh"])
 	def WifiOff(self):
@@ -116,8 +116,8 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 				text=text+"<th class=\"tg-alarm\"><p class=\"text\">"+str(i.hour).zfill(2) +":"+str(i.minute).zfill(2)
 				text=text+"</p></th><th class=\"tg-del\"><a href=\"http://localhost:8000/del?id="+str(idx)+"\"><p class=\"text\">del</p></a></th></tr>"
 			text=text+"<tr><br/></tr>"
-			with open('list.html', 'r') as testFile:
-				self.wfile.write(testFile.read().replace("$ALARMS$",text))
+			with open('list.html', 'r') as file:
+				self.wfile.write(file.read().replace("$ALARMS$",text))
 			Thread(target=self.flushScreen, args=[]).start()
 		elif None != re.search('/set', self.path):
 			self.send_response(200)
@@ -159,13 +159,14 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 					print "alarm for: day "+str(parameters['day'][i])+" "+str(alarmHour)+":"+str(alarmMinute)
 					for i in alarms:
 						print i.nextRing
+					# print "nextRing: "+str(nextRing)
 			self.wfile.write(self.getClock())
 			Thread(target=self.flushScreen, args=[]).start()
 		elif None != re.search('/alarm', self.path):
 			self.send_response(200)
 			self.end_headers()
-			with open('alarm.html', 'r') as testFile:
-				self.wfile.write(testFile.read())
+			with open('alarm.html', 'r') as file:
+				self.wfile.write(file.read())
 			Thread(target=self.flushScreen, args=[]).start()
 		else:
 			self.send_response(404)

@@ -35,6 +35,7 @@ function startTime() {
 	{
 		cnt = 0;
 		window.location="http://localhost:8000/clock";
+		<!-- location.reload(); -->
 	}
 	else
 	{
@@ -53,9 +54,11 @@ function stopAlarm(){
 	var url = "http://localhost:8000/stop"
 	req.open("GET", url, true);
 	req.onreadystatechange = function () {
+		//document.getElementById('divTxt').innerHTML = "Contents : " + req.responseText;
 	}
 	req.send(null);
 	window.location="http://localhost:8000/clock";
+	<!-- location.reload(); -->
 }
 </script>
 <style>
@@ -63,17 +66,35 @@ function stopAlarm(){
 	-webkit-transform: rotate(90deg) translate(100px, 100px);
 	height: 600px;
 	width: 800px;
+	<!-- border-style: solid; -->
+    <!-- border-width: 5px; -->
 }
 #day {
 	padding:0;
 	margin:0;
+	font-size: 70px;
+	<!-- padding:0px 0px; -->
+	<!-- margin-top: -100px; -->
+	<!-- font-size: 80px; -->
+    <!-- position: fixed; -->
+	<!-- top: 50px; -->
+	<!-- left: 15px; -->
 }
 #clock {
+	<!-- font-size: 300px; -->
+    <!-- position: fixed; -->
+	<!-- top: 100px; -->
+	<!-- left: 15px; -->
+	<!-- padding:0; -->
+	<!-- margin:0; -->
 	padding:-100px -100px;
 	margin-top: -40px;
 	margin-bottom: -40px;
 }
 #alarm {
+    <!-- position: fixed; -->
+    <!-- top: 75%; -->
+    <!-- left: 5%; -->
 	padding:0;
 	margin:0;
 }
@@ -83,6 +104,9 @@ function stopAlarm(){
 	margin-top: -40px;
 	margin-bottom: -40px;
 	margin-left: 15px;
+    <!-- position: fixed; -->
+    <!-- top: 65%; -->
+    <!-- left: 30%; -->
 }
 a {
 	padding:0;
@@ -105,6 +129,8 @@ a {
 	font-family:Arial, sans-serif;
 	font-size:14px;
 	padding:0px 0px;
+	<!-- border-style:solid; -->
+	<!-- border-width:1px; -->
 	overflow:hidden;
 	word-break:normal;
 }
@@ -113,6 +139,8 @@ a {
 	font-size:14px;
 	font-weight:normal;
 	padding:0px 0px;
+	<!-- border-style:solid; -->
+	<!-- border-width:1px; -->
 	overflow:hidden;
 	word-break:normal;
 }
