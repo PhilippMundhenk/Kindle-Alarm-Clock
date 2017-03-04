@@ -63,8 +63,8 @@ function adjustMinute(i) {
 	}
 }
 function set(){
-	var minute = "&minute="+parseInt(document.getElementById('minuteText').innerHTML);
-	var hour = "?hour="+parseInt(document.getElementById('hourText').innerHTML);
+	var minute = "&minute="+parseInt(document.getElementById('minuteText').innerHTML, 10);
+	var hour = "?hour="+parseInt(document.getElementById('hourText').innerHTML, 10);
 	var url = "http://localhost:8000/set"+hour+minute;
 	for(i = 0; i < 7; i++)
 	{
