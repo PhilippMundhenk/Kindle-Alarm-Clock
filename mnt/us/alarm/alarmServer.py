@@ -6,14 +6,19 @@ import cgi
 import json
 import time
 import os.path
+import os
+import commands
 import re
+import subprocess
 from urlparse import parse_qs
 import datetime
 from datetime import datetime, timedelta
 
 alarms = []
 weekdayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-mplayerMode="playall" #playlist
+stream="http://yourURLhere/stream"
+backupSound="/mnt/us/music/smsalert2.mp3"
+volume=75
 
 class Alarm():
 	weekday=-1
@@ -35,6 +40,12 @@ class Alarm():
 			return 0
 
 class RestHTTPRequestHandler(BaseHTTPRequestHandler):
+	def isMplayerRunning(self):
+		ps= subprocess.Popen("ps -ef | grep mplayer | grep -v grep", shell=True, stdout=subprocess.PIPE)
+		output = ps.stdout.read()
+		ps.stdout.close()
+		ps.wait()
+		return output
 	def getClock(self):
 		global alarms
 		global weekdayNames
@@ -52,18 +63,35 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 				return file.read().replace("$NEXT_ALARM$","")
 	def flushScreen(x):
 		call(["/mnt/us/alarm/flushScreen.sh"])
+	def WifiOn(self):
+		#Need to turn off WiFi via Kindle Framework first, so that it auto connects when turning on
+		call(["lipc-set-prop", "com.lab126.cmd", "wirelessEnable", "0"])
+		time.sleep(30)
+		call(["lipc-set-prop", "com.lab126.cmd", "wirelessEnable", "1"])
+		call(["ifup", "wlan0"])
+		time.sleep(10)
 	def WifiOff(self):
 		time.sleep(5)
-		call(["ifdown","wlan0"])
+		call(["ifdown", "wlan0"])
+		#Better do not use propper WiFi off here, will trigger UI elements:
+		# call(["lipc-set-prop", "com.lab126.cmd", "wirelessEnable", "0"])
 	def stopRingIn(self, i):
 		time.sleep(i)
-		call(["/mnt/us/mplayer/control.sh", "stop"])
+		call(["killall", "mplayer"])
 	def ringIn(self, i):
 		global alarms
-		time.sleep(i-10)
-		call(["ifup","wlan0"])
-		time.sleep(10)
-		call(["/mnt/us/mplayer/control.sh", mplayerMode])
+		global volume
+		global stream
+		time.sleep(i-53)
+		self.WifiOn()
+		#ToDo: fade-in effect here:
+		# command = "wget \""+stream+"\" -O - | /mnt/us/mplayer/mplayer -volume "+str(volume)+" -slave -input file=\""+pipePath+"\" -cache 1024 -"
+		command = "wget \""+stream+"\" -O - | /mnt/us/mplayer/mplayer -volume "+str(volume)+" -cache 2048 -"
+		os.system(command)
+		time.sleep(1)
+		if(self.isMplayerRunning()==""):
+			command = "/mnt/us/mplayer/mplayer -loop 0 -volume "+str(volume)+" "+backupSound
+			os.system(command)
 		Thread(target=self.stopRingIn, args=[60]).start()
 		old = alarms.pop(0)
 		if old.weekday != -1:
@@ -75,10 +103,6 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 			print "alarm for: day "+str(old.weekday)+" "+str(old.hour)+":"+str(old.minute)
 			for i in alarms:
 				print i.nextRing
-	def ring(self, i):
-		call(["/mnt/us/mplayer/control.sh", mplayerMode])
-		time.sleep(i)
-		call(["/mnt/us/mplayer/control.sh", "stop"])
 	def do_GET(self):
 		global alarms
 		if None != re.search('/ring', self.path):
@@ -90,7 +114,7 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 		elif None != re.search('/stop', self.path):
 			self.send_response(200)
 			self.end_headers()
-			call(["/mnt/us/mplayer/control.sh", "stop"])
+			call(["killall", "mplayer"])
 		elif None != re.search('/clock', self.path):
 			self.send_response(200)
 			self.end_headers()
