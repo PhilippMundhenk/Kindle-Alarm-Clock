@@ -16,8 +16,8 @@ from datetime import datetime, timedelta
 
 alarms = []
 weekdayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-stream="http://yourURLhere/stream"
-backupSound="/mnt/us/music/smsalert2.mp3"
+stream="http://yourURLHere"
+backupSound="/path/to/backup/sound/here.mp3"
 volume=75
 
 class Alarm():
@@ -86,11 +86,12 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 		self.WifiOn()
 		#ToDo: fade-in effect here:
 		# command = "wget \""+stream+"\" -O - | /mnt/us/mplayer/mplayer -volume "+str(volume)+" -slave -input file=\""+pipePath+"\" -cache 1024 -"
-		command = "wget \""+stream+"\" -O - | /mnt/us/mplayer/mplayer -volume "+str(volume)+" -cache 2048 -"
+		command = "wget \""+stream+"\" -O - | /mnt/us/mplayer/mplayer -volume "+str(volume)+" -cache 2048 - &"
 		os.system(command)
 		time.sleep(1)
+		#ToDo: move this to thread? What if mplayer/wget/pipe cache hangs and there is no sound output? How to detect?
 		if(self.isMplayerRunning()==""):
-			command = "/mnt/us/mplayer/mplayer -loop 0 -volume "+str(volume)+" "+backupSound
+			command = "/mnt/us/mplayer/mplayer -loop 0 -volume "+str(volume)+" "+backupSound+" &"
 			os.system(command)
 		Thread(target=self.stopRingIn, args=[60]).start()
 		old = alarms.pop(0)
