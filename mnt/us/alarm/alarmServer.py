@@ -16,8 +16,11 @@ from datetime import datetime, timedelta
 
 alarms = []
 weekdayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-stream="http://yourURLHere"
+#if you want internet radio, then set this variable to the URL of your radio station. Possibly might have to use the IP address.
+stream="http://yourURLHere" 
+#the following sound is played if the internet radio station is not available or not set:
 backupSound="/path/to/backup/sound/here.mp3"
+#this is the volume to play the sound/radio at:
 volume=75
 
 class Alarm():
