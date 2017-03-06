@@ -16,12 +16,10 @@ from datetime import datetime, timedelta
 
 alarms = []
 weekdayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-#if you want internet radio, then set this variable to the URL of your radio station. Possibly might have to use the IP address.
-stream="http://yourURLHere" 
-#the following sound is played if the internet radio station is not available or not set:
-backupSound="/path/to/backup/sound/here.mp3"
-#this is the volume to play the sound/radio at:
+stream="http://91.250.86.107:8300/;stream.mp3"
+backupSound="/mnt/us/music/smsalert2.mp3"
 volume=75
+secondsToAutoOff=300
 
 class Alarm():
 	weekday=-1
@@ -85,18 +83,27 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 		global alarms
 		global volume
 		global stream
+		global secondsToAutoOff
 		time.sleep(i-53)
 		self.WifiOn()
+		command="amixer sset 'Speaker Boost' 0"
+                os.system(command)
 		#ToDo: fade-in effect here:
 		# command = "wget \""+stream+"\" -O - | /mnt/us/mplayer/mplayer -volume "+str(volume)+" -slave -input file=\""+pipePath+"\" -cache 1024 -"
-		command = "wget \""+stream+"\" -O - | /mnt/us/mplayer/mplayer -volume "+str(volume)+" -cache 2048 - &"
+		command = "wget \""+stream+"\" -O - | /mnt/us/mplayer/mplayer -volume "+str(volume)+" -cache 1024 - &"
 		os.system(command)
 		time.sleep(1)
 		#ToDo: move this to thread? What if mplayer/wget/pipe cache hangs and there is no sound output? How to detect?
 		if(self.isMplayerRunning()==""):
 			command = "/mnt/us/mplayer/mplayer -loop 0 -volume "+str(volume)+" "+backupSound+" &"
 			os.system(command)
-		Thread(target=self.stopRingIn, args=[60]).start()
+		maxVol=volume/(100/7)
+		for i in range(0,maxVol):
+			command="amixer sset 'Speaker Boost' "+str(i)
+			print command
+			os.system(command)
+			time.sleep(2)
+		Thread(target=self.stopRingIn, args=[secondsToAutoOff]).start()
 		old = alarms.pop(0)
 		if old.weekday != -1:
 			seconds=604800 #7 days
