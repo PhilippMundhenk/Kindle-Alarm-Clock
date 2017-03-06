@@ -16,8 +16,8 @@ from datetime import datetime, timedelta
 
 alarms = []
 weekdayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-stream="http://91.250.86.107:8300/;stream.mp3"
-backupSound="/mnt/us/music/smsalert2.mp3"
+stream="http://YourRadioURL.com"
+backupSound="/mnt/us/music/alarmSound.mp3"
 volume=75
 secondsToAutoOff=300
 
@@ -179,7 +179,7 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 				for i in range(len(parameters['day'])):
 					format="%H:%M"
 					weekdayDiff=int(parameters['day'][i])-int(datetime.today().weekday())
-					if(weekdayDiff<0):
+					if(weekdayDiff<=0):
 						weekdayDiff=weekdayDiff+7
 					alarmString=str(alarmHour)+":"+str(alarmMinute)
 					diff=datetime.strptime(alarmString, format)-now
