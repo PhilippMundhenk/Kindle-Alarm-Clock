@@ -16,8 +16,8 @@ from datetime import datetime, timedelta
 
 alarms = []
 weekdayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-stream="http://YourRadioURL.com"
-backupSound="/mnt/us/music/alarmSound.mp3"
+stream="http://91.250.86.107:8300/;stream.mp3"
+backupSound="/mnt/us/music/smsalert2.mp3"
 volume=75
 secondsToAutoOff=300
 
@@ -84,25 +84,24 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 		global volume
 		global stream
 		global secondsToAutoOff
-		time.sleep(i-53)
+		time.sleep(i-10)
 		self.WifiOn()
-		command="amixer sset 'Speaker Boost' 0"
-                os.system(command)
 		#ToDo: fade-in effect here:
-		# command = "wget \""+stream+"\" -O - | /mnt/us/mplayer/mplayer -volume "+str(volume)+" -slave -input file=\""+pipePath+"\" -cache 1024 -"
-		command = "wget \""+stream+"\" -O - | /mnt/us/mplayer/mplayer -volume "+str(volume)+" -cache 1024 - &"
+		command = "(/mnt/us/mplayer/mplayer -loop 0 /mnt/us/alarm/empty.mp3)&"
 		os.system(command)
-		time.sleep(1)
+		command = "(sleep 1 && amixer sset 'Speaker Boost' 0)&"
+		os.system(command)
+		command = "(sleep 6 && killall mplayer && wget \""+stream+"\" -O - | /mnt/us/mplayer/mplayer -cache 1024 - )&"
+		os.system(command)
+		time.sleep(10)
 		#ToDo: move this to thread? What if mplayer/wget/pipe cache hangs and there is no sound output? How to detect?
 		if(self.isMplayerRunning()==""):
-			command = "/mnt/us/mplayer/mplayer -loop 0 -volume "+str(volume)+" "+backupSound+" &"
+			command = "/mnt/us/mplayer/mplayer -loop 0 "+backupSound+" &"
 			os.system(command)
 		maxVol=volume/(100/7)
 		for i in range(0,maxVol):
-			command="amixer sset 'Speaker Boost' "+str(i)
-			print command
+			command="(sleep "+str(10*i)+" && amixer sset 'Speaker Boost' "+str(i)+")&"
 			os.system(command)
-			time.sleep(2)
 		Thread(target=self.stopRingIn, args=[secondsToAutoOff]).start()
 		old = alarms.pop(0)
 		if old.weekday != -1:
@@ -171,7 +170,7 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 				Thread(target=self.ringIn, args=[seconds]).start()
 				alarms.append(Alarm(-1,alarmHour, alarmMinute,nextRing))
 				alarms=sorted(alarms)
-				print "alarm for: "+str(alarmHour)+":"+str(alarmMinute)
+				print "alarm for: "+str(alarmHour)+":"+str(alarmMinute)+" (in "+str(seconds)+" seconds)"
 				for i in alarms:
 						print i.nextRing
 				# print "nextRing: "+str(nextRing)
