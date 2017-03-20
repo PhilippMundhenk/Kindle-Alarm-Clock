@@ -16,10 +16,10 @@ from datetime import datetime, timedelta
 
 alarms = []
 weekdayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-stream="http://91.250.86.107:8300/;stream.mp3"
+stream="http://4broadcast.de:8400/;stream.mp3"
 backupSound="/mnt/us/music/smsalert2.mp3"
 volume=75
-secondsToAutoOff=300
+secondsToAutoOff=600
 
 class Alarm():
 	weekday=-1
@@ -79,6 +79,9 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 	def stopRingIn(self, i):
 		time.sleep(i)
 		call(["killall", "mplayer"])
+	def startRing(self, i):
+		global stream
+		
 	def ringIn(self, i):
 		global alarms
 		global volume
@@ -91,7 +94,12 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 		os.system(command)
 		command = "(sleep 1 && amixer sset 'Speaker Boost' 0)&"
 		os.system(command)
-		command = "(sleep 6 && killall mplayer && wget \""+stream+"\" -O - | /mnt/us/mplayer/mplayer -cache 1024 - )&"
+		#Thread(target=self.startRing, args=[6]).start()
+		time.sleep(6)
+		command = "(killall mplayer)&"
+		os.system(command)
+		time.sleep(1)
+		command = "(/mnt/us/mplayer/mplayer -cache 1024 \""+stream+"\")&"
 		os.system(command)
 		time.sleep(10)
 		#ToDo: move this to thread? What if mplayer/wget/pipe cache hangs and there is no sound output? How to detect?
