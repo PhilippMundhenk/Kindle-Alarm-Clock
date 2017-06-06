@@ -14,13 +14,14 @@ from urlparse import parse_qs
 import datetime
 from datetime import datetime, timedelta
 import pickle
+from threading import Timer
 
 alarms = []
 weekdayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-stream="http://4broadcast.de:8400/;stream.mp3"
 backupSound="/mnt/us/music/smsalert2.mp3"
 volume=75
 secondsToAutoOff=600
+wificontrol=True
 
 def invertDisplayIn(self, i):
 	time.sleep(i)
@@ -70,18 +71,26 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 				return file.read().replace("$NEXT_ALARM$","")
 	def flushScreen(x):
 		call(["/mnt/us/alarm/flushScreen.sh"])
+	def saveAlarms(self):
+		if os.path.exists('/mnt/us/alarm/alarms.bak'):
+			os.remove('/mnt/us/alarm/alarms.bak')
+		afile = open(r'/mnt/us/alarm/alarms.bak', 'wb')
+		pickle.dump(alarms, afile)
+		afile.close()
 	def WifiOn(self):
-		#Need to turn off WiFi via Kindle Framework first, so that it auto connects when turning on
-		call(["lipc-set-prop", "com.lab126.cmd", "wirelessEnable", "0"])
-		time.sleep(30)
-		call(["lipc-set-prop", "com.lab126.cmd", "wirelessEnable", "1"])
-		call(["ifup", "wlan0"])
-		time.sleep(10)
+		if wificontrol:
+			#Need to turn off WiFi via Kindle Framework first, so that it auto connects when turning on
+			call(["lipc-set-prop", "com.lab126.cmd", "wirelessEnable", "0"])
+			time.sleep(30)
+			call(["lipc-set-prop", "com.lab126.cmd", "wirelessEnable", "1"])
+			call(["ifup", "wlan0"])
+			time.sleep(10)
 	def WifiOff(self):
-		time.sleep(5)
-		call(["ifdown", "wlan0"])
-		#Better do not use propper WiFi off here, will trigger UI elements:
-		# call(["lipc-set-prop", "com.lab126.cmd", "wirelessEnable", "0"])
+		if wificontrol:
+			time.sleep(5)
+			call(["ifdown", "wlan0"])
+			#Better do not use propper WiFi off here, will trigger UI elements:
+			# call(["lipc-set-prop", "com.lab126.cmd", "wirelessEnable", "0"])
 	def stopRingIn(self, i):
 		time.sleep(i)
 		call(["killall", "mplayer"])
@@ -95,39 +104,31 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 		global secondsToAutoOff
 		time.sleep(i-10)
 		self.WifiOn()
-		#ToDo: fade-in effect here:
-		command = "(/mnt/us/mplayer/mplayer -loop 0 /mnt/us/alarm/empty.mp3)&"
+		command = "mkfifo /tmp/test.fifo"
 		os.system(command)
-		command = "(sleep 1 && amixer sset 'Speaker Boost' 0)&"
+		command = "(/mnt/us/mplayer/mplayer -loop 0 -cache 1024 -volume 0 -playlist /mnt/us/alarm/playlist.m3u -input file=/tmp/test.fifo -ao alsa -slave -quiet </dev/null >/dev/null 2>&1)&"
 		os.system(command)
-		#Thread(target=self.startRing, args=[6]).start()
-		time.sleep(6)
-		command = "(killall mplayer)&"
+		command = "(sleep 1 && echo \"set_property volume 0\" > /tmp/test.fifo)&"
 		os.system(command)
-		time.sleep(1)
-		command = "(/mnt/us/mplayer/mplayer -cache 1024 \""+stream+"\")&"
-		os.system(command)
-		time.sleep(10)
 		#ToDo: move this to thread? What if mplayer/wget/pipe cache hangs and there is no sound output? How to detect?
 		if(self.isMplayerRunning()==""):
 			command = "/mnt/us/mplayer/mplayer -loop 0 "+backupSound+" &"
 			os.system(command)
-		maxVol=volume/(100/7)
+		maxVol=volume
 		for i in range(0,maxVol):
-			command="(sleep "+str(10*i)+" && amixer sset 'Speaker Boost' "+str(i)+")&"
+			command="(sleep "+str(i)+" && echo \"set_property volume "+str(i)+"\" > /tmp/test.fifo)&"
 			os.system(command)
 		Thread(target=self.stopRingIn, args=[secondsToAutoOff]).start()
 		old = alarms.pop(0)
+		self.saveAlarms()
 		if old.weekday != -1:
 			seconds=604800 #7 days
 			Thread(target=self.ringIn, args=[seconds]).start()
 			nextRing=datetime.now()+timedelta(seconds=seconds)
 			alarms.append(Alarm(old.weekday,old.hour,old.minute,nextRing))
-			afile = open(r'/mnt/us/alarm/alarms.bak', 'wb')
-			pickle.dump(alarms, afile)
-			afile.close()
-			
 			alarms=sorted(alarms)
+			self.saveAlarms()
+			
 			print "alarm for: day "+str(old.weekday)+" "+str(old.hour)+":"+str(old.minute)
 			for i in alarms:
 				print i.nextRing
@@ -151,6 +152,7 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 		elif None != re.search('/del', self.path):
 			parameters=parse_qs(self.path[5:])
 			alarms.pop(int(parameters['id'][0]))
+			self.saveAlarms()
 			self.send_response(200)
 			self.end_headers()
 			self.wfile.write(self.getClock())
@@ -186,12 +188,9 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 				seconds=diff.seconds
 				nextRing=datetime.now()+timedelta(seconds=seconds)
 				Thread(target=self.ringIn, args=[seconds]).start()
-				alarms.append(Alarm(-1,alarmHour, alarmMinute,nextRing))
+				alarms.append(Alarm(-1,alarmHour, alarmMinute, nextRing))
 				alarms=sorted(alarms)
-				
-				afile = open(r'/mnt/us/alarm/alarms.bak', 'wb')
-				pickle.dump(alarms, afile)
-				afile.close()
+				self.saveAlarms()
 				
 				print "alarm for: "+str(alarmHour)+":"+str(alarmMinute)+" (in "+str(seconds)+" seconds)"
 				for i in alarms:
@@ -213,10 +212,7 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 					Thread(target=self.ringIn, args=[seconds]).start()
 					alarms.append(Alarm(parameters['day'][i],alarmHour, alarmMinute, nextRing))
 					alarms=sorted(alarms)
-					
-					afile = open(r'/mnt/us/alarm/alarms.bak', 'wb')
-					pickle.dump(alarms, afile)
-					afile.close()
+					self.saveAlarms()
 			
 					print "alarm for: day "+str(parameters['day'][i])+" "+str(alarmHour)+":"+str(alarmMinute)
 					for i in alarms:
