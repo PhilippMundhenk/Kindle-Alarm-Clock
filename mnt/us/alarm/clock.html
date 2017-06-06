@@ -30,17 +30,17 @@ function startTime() {
     s = checkTime(s);
     document.getElementById('clock').innerHTML = h + ":" + m;
 	document.getElementById('day').innerHTML = weekday[d] + ", " + da + "." + mo + "." + y;
-	cnt++;
-	if(cnt==600)
-	{
-		cnt = 0;
-		window.location="http://localhost:8000/clock";
-		<!-- location.reload(); -->
-	}
-	else
-	{
-		setTimeout(startTime, 1000);
-	}
+	<!-- cnt++; -->
+	<!-- if(cnt==600) -->
+	<!-- { -->
+		<!-- cnt = 0; -->
+		<!-- window.location="http://localhost:8000/clock"; -->
+	<!-- } -->
+	<!-- else -->
+	<!-- { -->
+		<!-- setTimeout(startTime, 1000); -->
+	<!-- } -->
+	setTimeout(startTime, 1000);
 }
 function checkTime(i) {
     if (i < 10) {i = "0" + i};  // add zero in front of numbers < 10

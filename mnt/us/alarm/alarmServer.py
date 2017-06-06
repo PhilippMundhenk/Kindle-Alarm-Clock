@@ -13,6 +13,7 @@ import subprocess
 from urlparse import parse_qs
 import datetime
 from datetime import datetime, timedelta
+import pickle
 
 alarms = []
 weekdayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -20,6 +21,11 @@ stream="http://4broadcast.de:8400/;stream.mp3"
 backupSound="/mnt/us/music/smsalert2.mp3"
 volume=75
 secondsToAutoOff=600
+
+def invertDisplayIn(self, i):
+	time.sleep(i)
+	flushScreen()
+	Thread(target=self.invertDisplayIn, args=[i]).start()
 
 class Alarm():
 	weekday=-1
@@ -117,6 +123,10 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 			Thread(target=self.ringIn, args=[seconds]).start()
 			nextRing=datetime.now()+timedelta(seconds=seconds)
 			alarms.append(Alarm(old.weekday,old.hour,old.minute,nextRing))
+			afile = open(r'/mnt/us/alarm/alarms.bak', 'wb')
+			pickle.dump(alarms, afile)
+			afile.close()
+			
 			alarms=sorted(alarms)
 			print "alarm for: day "+str(old.weekday)+" "+str(old.hour)+":"+str(old.minute)
 			for i in alarms:
@@ -178,6 +188,11 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 				Thread(target=self.ringIn, args=[seconds]).start()
 				alarms.append(Alarm(-1,alarmHour, alarmMinute,nextRing))
 				alarms=sorted(alarms)
+				
+				afile = open(r'/mnt/us/alarm/alarms.bak', 'wb')
+				pickle.dump(alarms, afile)
+				afile.close()
+				
 				print "alarm for: "+str(alarmHour)+":"+str(alarmMinute)+" (in "+str(seconds)+" seconds)"
 				for i in alarms:
 						print i.nextRing
@@ -198,6 +213,11 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 					Thread(target=self.ringIn, args=[seconds]).start()
 					alarms.append(Alarm(parameters['day'][i],alarmHour, alarmMinute, nextRing))
 					alarms=sorted(alarms)
+					
+					afile = open(r'/mnt/us/alarm/alarms.bak', 'wb')
+					pickle.dump(alarms, afile)
+					afile.close()
+			
 					print "alarm for: day "+str(parameters['day'][i])+" "+str(alarmHour)+":"+str(alarmMinute)
 					for i in alarms:
 						print i.nextRing
@@ -217,7 +237,15 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 		
 		Thread(target=self.WifiOff, args=[]).start()
 		return
-     
+
+if os.path.exists('/mnt/us/alarm/alarms.bak'):
+	file2 = open(r'/mnt/us/alarm/alarms.bak', 'rb')
+	alarms = pickle.load(file2)
+	file2.close()
+	
+Thread(target=invertDisplayIn, args=[0, 3600]).start()
+		
 httpd = HTTPServer(('127.0.0.1', 8000), RestHTTPRequestHandler)
+
 while True:
 	httpd.handle_request()
