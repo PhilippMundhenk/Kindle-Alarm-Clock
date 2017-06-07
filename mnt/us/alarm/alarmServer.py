@@ -25,7 +25,7 @@ wificontrol=True
 
 def invertDisplayIn(self, i):
 	time.sleep(i)
-	flushScreen()
+	call(["/mnt/us/alarm/flushScreen.sh"])
 	Thread(target=self.invertDisplayIn, args=[i]).start()
 
 class Alarm():
