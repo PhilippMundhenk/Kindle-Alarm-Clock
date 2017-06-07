@@ -104,18 +104,31 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 		global secondsToAutoOff
 		time.sleep(i-10)
 		self.WifiOn()
+		#ToDo: fade-in effect here:
+		#command = "(/mnt/us/mplayer/mplayer -loop 0 -cache 1024 -playlist /mnt/us/alarm/playlist.m3u)&"
 		command = "mkfifo /tmp/test.fifo"
 		os.system(command)
-		command = "(/mnt/us/mplayer/mplayer -loop 0 -cache 1024 -volume 0 -playlist /mnt/us/alarm/playlist.m3u -input file=/tmp/test.fifo -ao alsa -slave -quiet </dev/null >/dev/null 2>&1)&"
+		command = "(/mnt/us/mplayer/mplayer -loop 0 -cache 1024 -volume 100 -playlist /mnt/us/alarm/playlist.m3u -input file=/tmp/test.fifo -ao alsa -slave -quiet </dev/null >/mnt/us/alarm/log_mplayer.log 2>&1)&"
 		os.system(command)
+		#command = "(sleep 1 && amixer sset 'Speaker' 0)&"
 		command = "(sleep 1 && echo \"set_property volume 0\" > /tmp/test.fifo)&"
 		os.system(command)
+		#Thread(target=self.startRing, args=[6]).start()
+		time.sleep(6)
+		#command = "(killall mplayer)&"
+		#os.system(command)
+		time.sleep(1)
+		#command = "(/mnt/us/mplayer/mplayer -cache 1024 \""+stream+"\")&"
+		#os.system(command)
+		time.sleep(10)
 		#ToDo: move this to thread? What if mplayer/wget/pipe cache hangs and there is no sound output? How to detect?
 		if(self.isMplayerRunning()==""):
 			command = "/mnt/us/mplayer/mplayer -loop 0 "+backupSound+" &"
 			os.system(command)
+		#maxVol=volume/(100/7)
 		maxVol=volume
 		for i in range(0,maxVol):
+			#command="(sleep "+str(10*i)+" && amixer sset 'Speaker' "+str(i)+")&"
 			command="(sleep "+str(i)+" && echo \"set_property volume "+str(i)+"\" > /tmp/test.fifo)&"
 			os.system(command)
 		Thread(target=self.stopRingIn, args=[secondsToAutoOff]).start()
