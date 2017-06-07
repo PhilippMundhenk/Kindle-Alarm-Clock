@@ -104,10 +104,6 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 		global secondsToAutoOff
 		time.sleep(i-10)
 		self.WifiOn()
-		#ToDo: fade-in effect here:
-		#command = "(/mnt/us/mplayer/mplayer -loop 0 -cache 1024 -playlist /mnt/us/alarm/playlist.m3u)&"
-		command = "mkfifo /tmp/test.fifo"
-		os.system(command)
 		command = "(/mnt/us/mplayer/mplayer -loop 0 -cache 1024 -volume 100 -playlist /mnt/us/alarm/playlist.m3u -input file=/tmp/test.fifo -ao alsa -slave -quiet </dev/null >/mnt/us/alarm/log_mplayer.log 2>&1)&"
 		os.system(command)
 		#command = "(sleep 1 && amixer sset 'Speaker' 0)&"
