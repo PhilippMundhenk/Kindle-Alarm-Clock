@@ -90,35 +90,58 @@ function cancel(){
 }
 </script>
 <style>
+body {
+	<!-- margin:0; -->
+	<!-- padding:0; -->
+	<!-- border-style: solid; -->
+	<!-- border-width: 5px; -->
+}
 #page {
 	-webkit-transform: rotate(90deg) translate(100px, 100px);
 	height: 600px;
 	width: 800px;
 	text-align: center;
+	<!-- border-style: solid; -->
+    <!-- border-width: 2px; -->
 }
 #hourText {
 	font-size: 100px;
+    <!-- position: fixed; -->
+	<!-- top: 10px; -->
+	<!-- left: 10px; -->
 }
 #colon {
 	font-size: 100px;
 }
 #minuteText {
 	font-size: 100px;
+    <!-- position: fixed; -->
+	<!-- top: 10px; -->
+	<!-- left: 210px; -->
 }
 #buttonSet {
 	font-size: 100px;
 	padding-left: 10px;
 	padding-right: 15px;
+    <!-- position: fixed; -->
+	<!-- top: 200px; -->
+	<!-- left: 460px; -->
 }
 #buttonCancel {
 	font-size: 100px;
 	padding-left: 10px;
 	padding-right: 15px;
+    <!-- position: fixed; -->
+	<!-- top: 10px; -->
+	<!-- left: 460px; -->
 }
 #buttonList {
 	font-size: 100px;
 	padding-left: 10px;
 	padding-right: 15px;
+    <!-- position: fixed; -->
+	<!-- top: 10px; -->
+	<!-- left: 460px; -->
 }
 .bottom {
 	-webkit-transform: rotate(180deg);
@@ -127,7 +150,12 @@ function cancel(){
 	width: 50%;
 	margin: 0 auto;
 }
+<!-- .text { -->
+	<!-- width: 50%; -->
+	<!-- margin: 0 auto; -->
+<!-- } -->
 .dayPickerTg{
+	<!-- font-size:50000vw; -->
 	border-collapse:collapse;
 	border-spacing:0;
 	position: absolute;
@@ -182,6 +210,8 @@ a {
 	font-family:Arial, sans-serif;
 	font-size:14px;
 	padding:0px 0px;
+	<!-- border-style:solid; -->
+	<!-- border-width:1px; -->
 	overflow:hidden;
 	word-break:normal;
 }
@@ -190,6 +220,8 @@ a {
 	font-size:14px;
 	font-weight:normal;
 	padding:0px 0px;
+	<!-- border-style:solid; -->
+	<!-- border-width:1px; -->
 	overflow:hidden;
 	word-break:normal;
 }
@@ -251,13 +283,13 @@ a {
 	  </tr>
 	  <tr>
 		<td class="tg-s6z2">
-			<img src="http://localhost:8080/triangle.png" width=100px class="bottom arrow" onclick="adjustHour(-1)"/>
+			<img src="http://localhost:8080/triangle.png " class="bottom arrow" onclick="adjustHour(-1)"/>
 		</td>
 		<td class="tg-s6z2"></td>
 		<td class="tg-s6z2"></td>
 		<td class="tg-s6z2"></td>
 		<td class="tg-s6z2">
-			<img src="http://localhost:8080/triangle.png" width=100px class="bottom arrow" onclick="adjustMinute(-1)"/>
+			<img src="http://localhost:8080/triangle.png" class="bottom arrow" onclick="adjustMinute(-1)"/>
 		</td>
 		<td class="tg-s6z2"></td>
 		<td class="tg-s6z2"></td>
