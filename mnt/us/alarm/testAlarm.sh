@@ -1,5 +1,7 @@
 {
    killall python
+   mntroot rw
+   mkfifo /tmp/test.fifo
    cd /mnt/us/alarm
    sleep 2
 #   python httpserver.py & > /dev/null 2>&1
