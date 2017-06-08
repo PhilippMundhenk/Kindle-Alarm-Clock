@@ -49,6 +49,33 @@ class Alarm():
 			
 class AlarmControl():
 	@staticmethod
+	def WifiOn():
+		if wificontrol:
+			#Need to turn off WiFi via Kindle Framework first, so that it auto connects when turning on
+			call(["lipc-set-prop", "com.lab126.cmd", "wirelessEnable", "0"])
+			time.sleep(30)
+			call(["lipc-set-prop", "com.lab126.cmd", "wirelessEnable", "1"])
+			call(["ifup", "wlan0"])
+			time.sleep(10)
+
+	@staticmethod
+	def isMplayerRunning():
+		ps= subprocess.Popen("ps -ef | grep mplayer | grep -v grep", shell=True, stdout=subprocess.PIPE)
+		output = ps.stdout.read()
+		ps.stdout.close()
+		ps.wait()
+		return output
+
+	@staticmethod
+	def saveAlarms():
+		global alarms
+		if os.path.exists('/mnt/us/alarm/alarms.bak'):
+			os.remove('/mnt/us/alarm/alarms.bak')
+		afile = open(r'/mnt/us/alarm/alarms.bak', 'wb')
+		pickle.dump(alarms, afile)
+		afile.close()
+		
+	@staticmethod
 	def stopRingIn(i):
 		time.sleep(i)
 		call(["killall", "mplayer"])
@@ -60,7 +87,7 @@ class AlarmControl():
 		global stream
 		global secondsToAutoOff
 		time.sleep(i-10)
-		self.WifiOn()
+		AlarmControl.WifiOn()
 		command = "(/mnt/us/mplayer/mplayer -loop 0 -cache 1024 -volume 0 -playlist /mnt/us/alarm/playlist.m3u -input file=/tmp/test.fifo -ao alsa -slave -quiet </dev/null >/mnt/us/alarm/log_mplayer.log 2>&1)&"
 		os.system(command)
 		command = "(sleep 1 && echo \"set_property volume 0\" > /tmp/test.fifo)&"
@@ -74,19 +101,19 @@ class AlarmControl():
 		
 		time.sleep(10)
 		#ToDo: move this to thread? What if mplayer/wget/pipe cache hangs and there is no sound output? How to detect?
-		if(self.isMplayerRunning()==""):
+		if(AlarmControl.isMplayerRunning()==""):
 			command = "/mnt/us/mplayer/mplayer -loop 0 "+backupSound+" &"
 			os.system(command)
 
 		old = alarms.pop(0)
-		self.saveAlarms()
+		AlarmControl.saveAlarms()
 		if old.weekday != -1:
 			seconds=604800 #7 days
 			Thread(target=AlarmControl.ringIn, args=[seconds]).start()
 			nextRing=datetime.now()+timedelta(seconds=seconds)
 			alarms.append(Alarm(old.weekday,old.hour,old.minute,nextRing))
 			alarms=sorted(alarms)
-			self.saveAlarms()
+			AlarmControl.saveAlarms()
 			
 			print "alarm for: day "+str(old.weekday)+" "+str(old.hour)+":"+str(old.minute)
 			for i in alarms:
@@ -94,12 +121,6 @@ class AlarmControl():
 	
 
 class RestHTTPRequestHandler(BaseHTTPRequestHandler):
-	def isMplayerRunning(self):
-		ps= subprocess.Popen("ps -ef | grep mplayer | grep -v grep", shell=True, stdout=subprocess.PIPE)
-		output = ps.stdout.read()
-		ps.stdout.close()
-		ps.wait()
-		return output
 	def getClock(self):
 		global alarms
 		global weekdayNames
@@ -117,20 +138,6 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 				return file.read().replace("$NEXT_ALARM$","")
 	def flushScreen(x):
 		call(["/mnt/us/alarm/flushScreen.sh"])
-	def saveAlarms(self):
-		if os.path.exists('/mnt/us/alarm/alarms.bak'):
-			os.remove('/mnt/us/alarm/alarms.bak')
-		afile = open(r'/mnt/us/alarm/alarms.bak', 'wb')
-		pickle.dump(alarms, afile)
-		afile.close()
-	def WifiOn(self):
-		if wificontrol:
-			#Need to turn off WiFi via Kindle Framework first, so that it auto connects when turning on
-			call(["lipc-set-prop", "com.lab126.cmd", "wirelessEnable", "0"])
-			time.sleep(30)
-			call(["lipc-set-prop", "com.lab126.cmd", "wirelessEnable", "1"])
-			call(["ifup", "wlan0"])
-			time.sleep(10)
 	def WifiOff(self):
 		if wificontrol:
 			time.sleep(5)
@@ -159,7 +166,7 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 		elif None != re.search('/del', self.path):
 			parameters=parse_qs(self.path[5:])
 			alarms.pop(int(parameters['id'][0]))
-			self.saveAlarms()
+			AlarmControl.saveAlarms()
 			self.send_response(200)
 			self.end_headers()
 			self.wfile.write(self.getClock())
@@ -196,7 +203,7 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 				Thread(target=AlarmControl.ringIn, args=[seconds]).start()
 				alarms.append(Alarm(-1,alarmHour, alarmMinute, nextRing))
 				alarms=sorted(alarms)
-				self.saveAlarms()
+				AlarmControl.saveAlarms()
 				
 				print "alarm for: "+str(alarmHour)+":"+str(alarmMinute)+" (in "+str(seconds)+" seconds)"
 				for i in alarms:
@@ -219,7 +226,7 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 					Thread(target=AlarmControl.ringIn, args=[seconds]).start()
 					alarms.append(Alarm(parameters['day'][i],alarmHour, alarmMinute, nextRing))
 					alarms=sorted(alarms)
-					self.saveAlarms()
+					AlarmControl.saveAlarms()
 			
 					print "alarm for: day "+str(parameters['day'][i])+" "+str(alarmHour)+":"+str(alarmMinute)
 					for i in alarms:
