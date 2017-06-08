@@ -46,6 +46,52 @@ class Alarm():
 			return 1
 		else:
 			return 0
+			
+class AlarmControl():
+	@staticmethod
+	def stopRingIn(i):
+		time.sleep(i)
+		call(["killall", "mplayer"])
+	
+	@staticmethod
+	def ringIn(i):
+		global alarms
+		global volume
+		global stream
+		global secondsToAutoOff
+		time.sleep(i-10)
+		self.WifiOn()
+		command = "(/mnt/us/mplayer/mplayer -loop 0 -cache 1024 -volume 0 -playlist /mnt/us/alarm/playlist.m3u -input file=/tmp/test.fifo -ao alsa -slave -quiet </dev/null >/mnt/us/alarm/log_mplayer.log 2>&1)&"
+		os.system(command)
+		command = "(sleep 1 && echo \"set_property volume 0\" > /tmp/test.fifo)&"
+		os.system(command)
+		maxVol=volume
+		for i in range(0,maxVol):
+			#command="(sleep "+str(10*i)+" && amixer sset 'Speaker' "+str(i)+")&"
+			command="(sleep "+str(i)+" && echo \"set_property volume "+str(i)+"\" > /tmp/test.fifo)&"
+			os.system(command)
+		Thread(target=AlarmControl.stopRingIn, args=[secondsToAutoOff]).start()
+		
+		time.sleep(10)
+		#ToDo: move this to thread? What if mplayer/wget/pipe cache hangs and there is no sound output? How to detect?
+		if(self.isMplayerRunning()==""):
+			command = "/mnt/us/mplayer/mplayer -loop 0 "+backupSound+" &"
+			os.system(command)
+
+		old = alarms.pop(0)
+		self.saveAlarms()
+		if old.weekday != -1:
+			seconds=604800 #7 days
+			Thread(target=AlarmControl.ringIn, args=[seconds]).start()
+			nextRing=datetime.now()+timedelta(seconds=seconds)
+			alarms.append(Alarm(old.weekday,old.hour,old.minute,nextRing))
+			alarms=sorted(alarms)
+			self.saveAlarms()
+			
+			print "alarm for: day "+str(old.weekday)+" "+str(old.hour)+":"+str(old.minute)
+			for i in alarms:
+				print i.nextRing
+	
 
 class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 	def isMplayerRunning(self):
@@ -91,49 +137,8 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 			call(["ifdown", "wlan0"])
 			#Better do not use propper WiFi off here, will trigger UI elements:
 			# call(["lipc-set-prop", "com.lab126.cmd", "wirelessEnable", "0"])
-	def stopRingIn(self, i):
-		time.sleep(i)
-		call(["killall", "mplayer"])
 	def startRing(self, i):
 		global stream
-		
-	def ringIn(self, i):
-		global alarms
-		global volume
-		global stream
-		global secondsToAutoOff
-		time.sleep(i-10)
-		self.WifiOn()
-		command = "(/mnt/us/mplayer/mplayer -loop 0 -cache 1024 -volume 0 -playlist /mnt/us/alarm/playlist.m3u -input file=/tmp/test.fifo -ao alsa -slave -quiet </dev/null >/mnt/us/alarm/log_mplayer.log 2>&1)&"
-		os.system(command)
-		command = "(sleep 1 && echo \"set_property volume 0\" > /tmp/test.fifo)&"
-		os.system(command)
-		maxVol=volume
-		for i in range(0,maxVol):
-			#command="(sleep "+str(10*i)+" && amixer sset 'Speaker' "+str(i)+")&"
-			command="(sleep "+str(i)+" && echo \"set_property volume "+str(i)+"\" > /tmp/test.fifo)&"
-			os.system(command)
-		Thread(target=self.stopRingIn, args=[secondsToAutoOff]).start()
-		
-		time.sleep(10)
-		#ToDo: move this to thread? What if mplayer/wget/pipe cache hangs and there is no sound output? How to detect?
-		if(self.isMplayerRunning()==""):
-			command = "/mnt/us/mplayer/mplayer -loop 0 "+backupSound+" &"
-			os.system(command)
-
-		old = alarms.pop(0)
-		self.saveAlarms()
-		if old.weekday != -1:
-			seconds=604800 #7 days
-			Thread(target=self.ringIn, args=[seconds]).start()
-			nextRing=datetime.now()+timedelta(seconds=seconds)
-			alarms.append(Alarm(old.weekday,old.hour,old.minute,nextRing))
-			alarms=sorted(alarms)
-			self.saveAlarms()
-			
-			print "alarm for: day "+str(old.weekday)+" "+str(old.hour)+":"+str(old.minute)
-			for i in alarms:
-				print i.nextRing
 	def do_GET(self):
 		global alarms
 		if None != re.search('/ring', self.path):
@@ -179,17 +184,16 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 			self.send_response(200)
 			self.end_headers()
 			parameters=parse_qs(self.path[5:])
-			now = datetime.now()
-			print "current time: "+str(now.hour)+":"+str(now.minute)
 			alarmHour=int(parameters['hour'][0])
 			alarmMinute=int(parameters['minute'][0])
 			if not 'day' in parameters:
 				format="%H:%M"
 				alarmString=str(alarmHour)+":"+str(alarmMinute)
+				now = datetime.now()
 				diff=datetime.strptime(alarmString, format)-now
 				seconds=diff.seconds
 				nextRing=datetime.now()+timedelta(seconds=seconds)
-				Thread(target=self.ringIn, args=[seconds]).start()
+				Thread(target=AlarmControl.ringIn, args=[seconds]).start()
 				alarms.append(Alarm(-1,alarmHour, alarmMinute, nextRing))
 				alarms=sorted(alarms)
 				self.saveAlarms()
@@ -205,13 +209,14 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 					if(weekdayDiff<=0):
 						weekdayDiff=weekdayDiff+7
 					alarmString=str(alarmHour)+":"+str(alarmMinute)
+					now = datetime.now()
 					diff=datetime.strptime(alarmString, format)-now
 					weekdayDiffSeconds=((weekdayDiff-1)*24*60*60)
 					if(weekdayDiffSeconds<0):
 						weekdayDiffSeconds=0
 					seconds=diff.seconds+weekdayDiffSeconds
 					nextRing=datetime.now()+timedelta(seconds=seconds)
-					Thread(target=self.ringIn, args=[seconds]).start()
+					Thread(target=AlarmControl.ringIn, args=[seconds]).start()
 					alarms.append(Alarm(parameters['day'][i],alarmHour, alarmMinute, nextRing))
 					alarms=sorted(alarms)
 					self.saveAlarms()
@@ -240,6 +245,34 @@ if os.path.exists('/mnt/us/alarm/alarms.bak'):
 	file2 = open(r'/mnt/us/alarm/alarms.bak', 'rb')
 	alarms = pickle.load(file2)
 	file2.close()
+	
+	for a in alarms:
+		alarmHour=int(a.hour)
+		alarmMinute=int(a.minute)
+		if a.weekday==-1:
+			format="%H:%M"
+			alarmString=str(alarmHour)+":"+str(alarmMinute)
+			now = datetime.now()
+			diff=datetime.strptime(alarmString, format)-now
+			seconds=diff.seconds
+			nextRing=datetime.now()+timedelta(seconds=seconds)
+			Thread(target=AlarmControl.ringIn, args=[seconds]).start()
+			print "alarm for: "+str(alarmHour)+":"+str(alarmMinute)+" (in "+str(seconds)+" seconds)"
+		else:
+			format="%H:%M"
+			weekdayDiff=int(a.weekday)-int(datetime.today().weekday())
+			if(weekdayDiff<=0):
+				weekdayDiff=weekdayDiff+7
+			alarmString=str(alarmHour)+":"+str(alarmMinute)
+			now = datetime.now()
+			diff=datetime.strptime(alarmString, format)-now
+			weekdayDiffSeconds=((weekdayDiff-1)*24*60*60)
+			if(weekdayDiffSeconds<0):
+				weekdayDiffSeconds=0
+			seconds=diff.seconds+weekdayDiffSeconds
+			nextRing=datetime.now()+timedelta(seconds=seconds)
+			Thread(target=AlarmControl.ringIn, args=[seconds]).start()
+			print "alarm for: day "+str(a.weekday)+" "+str(alarmHour)+":"+str(alarmMinute)
 	
 Thread(target=invertDisplayIn, args=[0, 3600]).start()
 		
