@@ -23,10 +23,10 @@ volume=75
 secondsToAutoOff=600
 wificontrol=True
 
-def invertDisplayIn(self, i):
+def invertDisplayIn(i):
 	time.sleep(i)
 	call(["/mnt/us/alarm/flushScreen.sh"])
-	Thread(target=self.invertDisplayIn, args=[i]).start()
+	Thread(target=invertDisplayIn, args=[i]).start()
 
 class Alarm():
 	weekday=-1
@@ -281,7 +281,7 @@ if os.path.exists('/mnt/us/alarm/alarms.bak'):
 			Thread(target=AlarmControl.ringIn, args=[seconds]).start()
 			print "alarm for: day "+str(a.weekday)+" "+str(alarmHour)+":"+str(alarmMinute)
 	
-Thread(target=invertDisplayIn, args=[0, 3600]).start()
+Thread(target=invertDisplayIn, args=[3600]).start()
 		
 httpd = HTTPServer(('127.0.0.1', 8000), RestHTTPRequestHandler)
 
