@@ -248,7 +248,10 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 		Thread(target=self.WifiOff, args=[]).start()
 		return
 
-if os.path.exists('/mnt/us/alarm/alarms.bak'):
+filePathAlarmsBak = '/mnt/us/alarm/alarms.bak'
+if os.path.exists(filePathAlarmsBak):
+	if os.stat(filePathAlarmsBak).st_size == 0
+		os.remove(filePathAlarmsBak)
 	file2 = open(r'/mnt/us/alarm/alarms.bak', 'rb')
 	alarms = pickle.load(file2)
 	file2.close()
