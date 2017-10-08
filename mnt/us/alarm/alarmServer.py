@@ -250,7 +250,7 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 
 filePathAlarmsBak = '/mnt/us/alarm/alarms.bak'
 if os.path.exists(filePathAlarmsBak):
-	if os.stat(filePathAlarmsBak).st_size == 0
+	if os.stat(filePathAlarmsBak).st_size == 0:
 		os.remove(filePathAlarmsBak)
 	file2 = open(r'/mnt/us/alarm/alarms.bak', 'rb')
 	alarms = pickle.load(file2)
