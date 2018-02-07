@@ -41,6 +41,7 @@ class Alarm():
 class AlarmControl():
 	@staticmethod
 	def WifiOn():
+		global wificontrol
 		if wificontrol:
 			#Need to turn off WiFi via Kindle Framework first, so that it auto connects when turning on
 			call(["lipc-set-prop", "com.lab126.cmd", "wirelessEnable", "0"])
@@ -79,20 +80,21 @@ class AlarmControl():
 		global stream
 		global secondsToAutoOff
 		
-		time.sleep(i-10)
+		time.sleep(i-20)
 
 		print "today: "+str(datetime.today().weekday())
 		print "days: "+str(alarm.weekdays)
 
-		if not datetime.today().weekday() in alarm.weekdays:
-			seconds = 24*60*60;
-			Thread(target=AlarmControl.ringIn, args=[seconds, alarm]).start()
-			
-			print "NOT"
-			print "seconds: "+str(seconds)
-			print "alarm for: days: "+str(alarm.weekdays)+" "+str(alarm.hour)+":"+str(alarm.minute)
+		if len(alarm.weekdays) != 0:
+			if not datetime.today().weekday() in alarm.weekdays:
+				seconds = 24*60*60;
+				Thread(target=AlarmControl.ringIn, args=[seconds, alarm]).start()
 				
-			return
+				print "NOT"
+				print "seconds: "+str(seconds)
+				print "alarm for: days: "+str(alarm.weekdays)+" "+str(alarm.hour)+":"+str(alarm.minute)
+					
+				return
 
 		print "preparing alarm..."
 
@@ -101,10 +103,11 @@ class AlarmControl():
 		os.system(command)
 		command = "(sleep 1 && echo \"set_property volume 0\" > /tmp/test.fifo)&"
 		os.system(command)
+		time.sleep(10);
 		maxVol=volume
 		for i in range(0,maxVol):
 			#command="(sleep "+str(10*i)+" && amixer sset 'Speaker' "+str(i)+")&"
-			command="(sleep "+str(i)+" && echo \"set_property volume "+str(i)+"\" > /tmp/test.fifo)&"
+			command="(sleep "+str(i)+" && echo \"set_property volume "+str(i)+"\" && echo \"set_property volume "+str(i)+"\" > /tmp/test.fifo)&"
 			os.system(command)
 		Thread(target=AlarmControl.stopRingIn, args=[secondsToAutoOff]).start()
 		
@@ -122,7 +125,7 @@ class AlarmControl():
 			Thread(target=AlarmControl.ringIn, args=[seconds, alarm]).start()
 
 			print "seconds: "+str(seconds)			
-			print "alarm for: days "+str(old.weekdays)+" "+str(old.hour)+":"+str(old.minute)
+			print "alarm for: days "+str(alarm.weekdays)+" "+str(alarm.hour)+":"+str(alarm.minute)
 	
 
 class RestHTTPRequestHandler(BaseHTTPRequestHandler):
@@ -144,6 +147,7 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 	def flushScreen(x):
 		call(["/mnt/us/alarm/flushScreen.sh"])
 	def WifiOff(self):
+		global wificontrol
 		if wificontrol:
 			time.sleep(5)
 			call(["ifdown", "wlan0"])
