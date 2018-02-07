@@ -170,6 +170,13 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 			self.end_headers()
 			self.wfile.write(self.getClock())
 			Thread(target=self.flushScreen, args=[]).start()
+		elif None != re.search('/delall', self.path):
+			alarms=[]
+			AlarmControl.saveAlarms()
+			self.send_response(200)
+			self.end_headers()
+			with open('alarm.html', 'r') as file:
+				self.wfile.write(file.read())
 		elif None != re.search('/del', self.path):
 			parameters=parse_qs(self.path[5:])
 			alarms.pop(int(parameters['id'][0]))
@@ -178,6 +185,23 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 			self.end_headers()
 			self.wfile.write(self.getClock())
 			Thread(target=self.flushScreen, args=[]).start()
+		elif None != re.search('/radio', self.path):
+			global volume
+
+			command = "(/mnt/us/mplayer/mplayer -loop 0 -cache 1024 -volume 0 -playlist /mnt/us/alarm/playlist.m3u -input file=/tmp/test.fifo -ao alsa -slave -quiet </dev/null >/mnt/us/alarm/log_mplayer.log 2>&1)&"
+			os.system(command)
+			command = "(sleep 1 && echo \"set_property volume 0\" > /tmp/test.fifo)&"
+			os.system(command)
+			time.sleep(10);
+			maxVol=volume
+			for i in range(0,maxVol,5):
+				#command="(sleep "+str(10*i)+" && amixer sset 'Speaker' "+str(i)+")&"
+				command="(sleep "+str(i)+" && echo \"set_property volume "+str(i)+"\" && echo \"set_property volume "+str(i)+"\" > /tmp/test.fifo)&"
+				os.system(command)
+
+			self.send_response(200)
+			self.end_headers()
+			self.wfile.write(self.getClock())
 		elif None != re.search('/list', self.path):
 			self.send_response(200)
 			self.end_headers()
@@ -186,8 +210,18 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 				text+="<tr><p class=\"text\">No alarms set</p></tr>"
 			for idx, i in enumerate(alarms):
 				text=text+"<tr>"
-				if(i.weekday >= 0):
-					text=text+"<th class=\"tg-alarm\"><p class=\"text\">"+weekdayNames[int(i.weekday)]+", </th>"
+				#TODO: What if no weekdays?
+				if(len(i.weekdays) > 0):
+					text=text+"<th class=\"tg-alarm\">"+"<p class=\"text\">"
+					cnt=0
+					for day in i.weekdays:
+						cnt=cnt+1
+						text=text+weekdayNames[int(day)]
+						if(cnt!=len(i.weekdays)):
+							text=text+","
+					text=text+":</th>"
+				else:
+					text=text+"<th class=\"tg-alarm\">"+"<p class=\"text\">"+"</th>"
 				text=text+"<th class=\"tg-alarm\"><p class=\"text\">"+str(i.hour).zfill(2) +":"+str(i.minute).zfill(2)
 				text=text+"</p></th><th class=\"tg-del\"><a href=\"http://localhost:8000/del?id="+str(idx)+"\"><p class=\"text\">del</p></a></th></tr>"
 			text=text+"<tr><br/></tr>"
