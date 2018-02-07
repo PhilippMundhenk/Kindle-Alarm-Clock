@@ -74,7 +74,6 @@ class AlarmControl():
 	
 	@staticmethod
 	def ringIn(i, alarm):
-		print "ringIn"
 		global alarms
 		global volume
 		global stream
@@ -90,9 +89,8 @@ class AlarmControl():
 				seconds = 24*60*60;
 				Thread(target=AlarmControl.ringIn, args=[seconds, alarm]).start()
 				
-				print "NOT"
 				print "seconds: "+str(seconds)
-				print "alarm for: days: "+str(alarm.weekdays)+" "+str(alarm.hour)+":"+str(alarm.minute)
+				print "alarm for: days: "+str(alarm.weekdays)+" "+str(alarm.hour)+":"+str(alarm.minute)+" ("+str(seconds)+"seconds)"
 					
 				return
 
@@ -120,7 +118,7 @@ class AlarmControl():
 
 		alarms.remove(alarm)
 		AlarmControl.saveAlarms()
-		if not alarm.weekdays:
+		if len(alarm.weekdays) != 0:
 			seconds = 24*60*60;
 			Thread(target=AlarmControl.ringIn, args=[seconds, alarm]).start()
 
@@ -244,35 +242,25 @@ if os.path.exists(filePathAlarmsBak):
 	file2 = open(r'/mnt/us/alarm/alarms.bak', 'rb')
 	alarms = pickle.load(file2)
 	file2.close()
-	
-	# for a in alarms:
-		# alarmHour=int(a.hour)
-		# alarmMinute=int(a.minute)
-		# if a.weekday==-1:
-			# format="%H:%M"
-			# alarmString=str(alarmHour)+":"+str(alarmMinute)
-			# now = datetime.now()
-			# diff=datetime.strptime(alarmString, format)-now
-			# seconds=diff.seconds
-			# nextRing=datetime.now()+timedelta(seconds=seconds)
-			# Thread(target=AlarmControl.ringIn, args=[seconds]).start()
-			# print "alarm for: "+str(alarmHour)+":"+str(alarmMinute)+" (in "+str(seconds)+" seconds)"
-		# else:
-			# format="%H:%M"
-			# weekdayDiff=int(a.weekday)-int(datetime.today().weekday())
-			# if(weekdayDiff<=0):
-				# weekdayDiff=weekdayDiff+7
-			# alarmString=str(alarmHour)+":"+str(alarmMinute)
-			# now = datetime.now()
-			# diff=datetime.strptime(alarmString, format)-now
-			# weekdayDiffSeconds=((weekdayDiff-1)*24*60*60)
-			# if(weekdayDiffSeconds<0):
-				# weekdayDiffSeconds=0
-			# seconds=diff.seconds+weekdayDiffSeconds
-			# nextRing=datetime.now()+timedelta(seconds=seconds)
-			# Thread(target=AlarmControl.ringIn, args=[seconds]).start()
-			# print "alarm for: day "+str(a.weekday)+" "+str(alarmHour)+":"+str(alarmMinute)
-	
+
+	for a in alarms:
+		alarmHour=int(a.hour)
+		alarmMinute=int(a.minute)
+		print a.weekdays
+		format="%H:%M"
+		alarmString=str(alarmHour)+":"+str(alarmMinute)
+		now = datetime.now()
+		diff=datetime.strptime(alarmString, format)-now
+		seconds=diff.seconds
+		#nextRing=datetime.now()+timedelta(seconds=seconds)
+		if len(a.weekdays) == 0:
+			newAlarm = Alarm([], alarmHour, alarmMinute)
+		else:
+			newAlarm = Alarm([int(i) for i in a.weekdays], alarmHour, alarmMinute)
+		Thread(target=AlarmControl.ringIn, args=[seconds, newAlarm]).start()
+		
+		print "alarm for: "+str(alarmHour)+":"+str(alarmMinute)+" (in "+str(seconds)+" seconds)"
+		
 Thread(target=invertDisplayIn, args=[3600]).start()
 		
 httpd = HTTPServer(('127.0.0.1', 8000), RestHTTPRequestHandler)
