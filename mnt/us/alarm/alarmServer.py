@@ -174,10 +174,9 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 						
 			print "closest alarm is: "+weekdayNames[day]+", "+str(alarm.hour)+":"+str(alarm.minute)
 	
-			text=""+weekdayNames[day]+", "
-			text=text+str(alarm.hour).zfill(2) +":"+str(alarm.minute).zfill(2)
 			if(numberAlarms>0):
-				return file.read().replace("$NEXT_ALARM$",text)
+				text=""+weekdayNames[day]+", "
+				text=text+str(alarm.hour).zfill(2) +":"+str(alarm.minute).zfill(2)			
 			if(numberAlarms>1):
 				text=text+" +"+str(numberAlarms-1)
 				return file.read().replace("$NEXT_ALARM$",text)
