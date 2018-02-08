@@ -131,17 +131,59 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 		global alarms
 		global weekdayNames
 		with open('clock.html', 'r') as file:
-			#if(len(alarms) > 0):
-			#	numberAdditionalAlarms=len(alarms)-1
-			#	text=""
-				#if(alarms[0].weekday >= 0):
-				#	text=text+weekdayNames[int(alarms[0].weekday)]+", "
-				#text=text+str(alarms[0].hour).zfill(2) +":"+str(alarms[0].minute).zfill(2)
-			#	if(numberAdditionalAlarms>0):
-			#		text=text+" +"+str(numberAdditionalAlarms)
-			#	return file.read().replace("$NEXT_ALARM$",text)
-			#else:
-				return file.read().replace("$NEXT_ALARM$","")
+			numberAlarms=0
+			nowCompare=datetime.now()
+			minDiff=8*24*60*60
+			alarm=Alarm(0,0,0)
+			day=0
+			for i in alarms:
+				if len(i.weekdays)>0:
+					for x in i.weekdays:
+						numberAlarms=numberAlarms+1
+						s2=str(i.hour)+":"+str(i.minute)+":00"
+						s1=str(nowCompare.hour)+":"+str(nowCompare.minute)+":00"
+						FMT = '%H:%M:%S'
+						tdelta = datetime.strptime(s2, FMT) - datetime.strptime(s1, FMT)
+						dayDiff = (7 + (x - nowCompare.weekday())) % 7
+						if dayDiff==0 and tdelta.days==-1:
+							dayDiff=dayDiff+7
+						print "tdelta: "+str(tdelta)
+						print "daydiff: "+str(dayDiff)
+						diff=tdelta.seconds+dayDiff*24*60*60
+						print "diff: "+str(diff)
+
+						if diff<minDiff:
+							minDiff=diff
+							alarm=i
+							day=x
+				else:
+					s2=str(i.hour)+":"+str(i.minute)+":00"
+					s1=str(nowCompare.hour)+":"+str(nowCompare.minute)+":00"
+					FMT = '%H:%M:%S'
+					tdelta = datetime.strptime(s2, FMT) - datetime.strptime(s1, FMT)
+					dayDiff = 1
+					print "tdelta: "+str(tdelta)
+					print "daydiff: "+str(dayDiff)
+					diff=tdelta.seconds+dayDiff*24*60*60
+					print "diff: "+str(diff)
+
+					if diff<minDiff:
+						minDiff=diff
+						alarm=i
+						day=x
+						
+			print "closest alarm is: "+weekdayNames[day]+", "+str(alarm.hour)+":"+str(alarm.minute)
+	
+			text=""+weekdayNames[day]+", "
+			text=text+str(alarm.hour).zfill(2) +":"+str(alarm.minute).zfill(2)
+			if(numberAlarms>0):
+				return file.read().replace("$NEXT_ALARM$",text)
+			if(numberAlarms>1):
+				text=text+" +"+str(numberAlarms-1)
+				return file.read().replace("$NEXT_ALARM$",text)
+			else:
+				return file.read().replace("$NEXT_ALARM$", "")
+			
 	def flushScreen(x):
 		call(["/mnt/us/alarm/flushScreen.sh"])
 	def WifiOff(self):
