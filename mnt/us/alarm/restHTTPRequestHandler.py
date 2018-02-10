@@ -62,15 +62,16 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 						alarm=i
 						day=nowCompare.weekday()+dayDiff
 						
+			text=""
 			if(numberAlarms>0):
 				print "closest alarm is: "+weekdayNames[day]+", "+str(alarm.hour)+":"+str(alarm.minute)
-				text=""+weekdayNames[day]+", "
+				text=text+weekdayNames[day]+", "
 				text=text+str(alarm.hour).zfill(2) +":"+str(alarm.minute).zfill(2)			
+			
 			if(numberAlarms>1):
 				text=text+" +"+str(numberAlarms-1)
-				return file.read().replace("$NEXT_ALARM$",text)
-			else:
-				return file.read().replace("$NEXT_ALARM$", "")
+			
+			return file.read().replace("$NEXT_ALARM$", text)
 			
 	def flushScreen(x):
 		call(["/mnt/us/alarm/flushScreen.sh"])

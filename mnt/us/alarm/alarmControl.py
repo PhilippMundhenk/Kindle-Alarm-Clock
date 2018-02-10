@@ -33,7 +33,10 @@ class AlarmControl():
 		return self.alarms
 
 	def deleteAllAlarms(self):
+		for a in self.alarms:
+			a.setActive(False)
 		del self.alarms[:]
+		self.saveAlarms()
 
 	def setAlarms(self, alarmsList):
 		del self.alarms[:]
@@ -74,7 +77,8 @@ class AlarmControl():
 		
 		self.alarms.append(newAlarm)
 		self.saveAlarms()
-		Thread(target=AlarmControl().ringIn, args=[seconds, newAlarm]).start()
+		t=Thread(target=AlarmControl().ringIn, args=[seconds, newAlarm])
+		t.start()
 		return newAlarm
 
 	def WifiOn(self):
@@ -115,10 +119,15 @@ class AlarmControl():
 		#print "today: "+str(datetime.today().weekday())
 		#print "days: "+str(alarm.weekdays)
 
-		if len(alarm.weekdays) != 0:
+		if not alarm.getActive():
+			print "alarm deactivated, exiting..."
+			return
+
+		if len(alarm.weekdays) > 0:
 			if not datetime.today().weekday() in alarm.weekdays:
 				seconds = 24*60*60;
-				Thread(target=AlarmControl().ringIn, args=[seconds, alarm]).start()
+				t=Thread(target=AlarmControl().ringIn, args=[seconds, alarm])
+				t.start()
 				
 				print "seconds: "+str(seconds)
 				print "alarm for: days: "+str(alarm.weekdays)+" "+str(alarm.hour)+":"+str(alarm.minute)+" ("+str(seconds)+"seconds)"
@@ -141,10 +150,13 @@ class AlarmControl():
 
 		#self.alarms.remove(alarm)
 		#self.saveAlarms()
-		if len(alarm.weekdays) != 0:
+		if len(alarm.weekdays) > 0:
 			#check in 24h if ring is required
 			seconds = 24*60*60;
-			Thread(target=AlarmControl().ringIn, args=[seconds, alarm]).start()
+			t=Thread(target=AlarmControl().ringIn, args=[seconds, alarm])
+			t.start()
 
 			print "seconds: "+str(seconds)			
 			print "alarm for: days "+str(alarm.weekdays)+" "+str(alarm.hour)+":"+str(alarm.minute)
+		else:
+			self.alarms.remove(alarm)
