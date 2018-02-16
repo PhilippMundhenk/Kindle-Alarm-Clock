@@ -57,10 +57,11 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 					diff=tdelta.seconds
 					#print "diff: "+str(diff)
 
-					if diff<minDiff:
-						minDiff=diff
-						alarm=i
-						day=nowCompare.weekday()+dayDiff
+					if diff != 0:
+						if diff<minDiff:
+							minDiff=diff
+							alarm=i
+							day=nowCompare.weekday()+dayDiff
 						
 			text=""
 			if(numberAlarms>0):
